@@ -64,42 +64,39 @@ def main():
                 'write-great-posts-and-articles.md']
 
     doc_index = 0 # 0 ~ 23
+    doc_name = doc_names[doc_index]
     
     # It is the latest current_para_index in your log, example:
     # main: Translating paragraph - 10/60
     # It's 10 if you want to start from the 10th line
-    start_para_index = 0
+    start_para = 1
 
-    print('main: Processing document [{}] - {}'.format(doc_index, doc_names[doc_index]))
+    print('main: Processing document [{}] - {}'.format(doc_index, doc_name))
 
-    doc_target = os.path.join(DOC_PATH_TARGET, doc_names[doc_index])
+    doc_target = os.path.join(DOC_PATH_TARGET, doc_name)
 
-    paragraphs, frontmatters = load_paragraphs(doc_names[doc_index])
+    paragraphs, frontmatters = load_paragraphs(doc_name)
 
-    if start_para_index == 0:
-        # It should be a new file when start from 0, so we import the frontmatter.
+    if start_para == 1:
+        # It should be a new file when start from 1, so we import the frontmatter.
         # MANUAL CASE:
         # If error occured in the first paragraph, you need to manually remove the frontmatter from the target document.
         save_content_append(doc_target, '\n'.join(frontmatters))
 
     # translate and append to target file
     para_count = len(paragraphs)
-    current_para_index = 0
-    for para in paragraphs:
+    for idx, para in enumerate(paragraphs):
         # skip the translated paragraphs
-        if current_para_index < start_para_index:
-            print('main: Skip paragraph - {}/{}'.format(current_para_index, para_count))
+        if (idx + 1) < start_para:
+            print('main: Skip paragraph - {}/{}'.format(idx + 1, para_count))
         else:
-            print('main: Translating paragraph - {}/{}'.format(current_para_index, para_count))
+            print('main: Translating paragraph - {}/{}'.format(idx + 1, para_count))
             # There will be some errors when calling the API
             # Be careful with the logs :) Good luck
             tran = chatgpt_translate(para)
 
             # append to target file
             save_content_append(doc_target, '\n\n{}'.format(tran))
-        
-        # mark to next paragraph
-        current_para_index += 1
     
 
 '''
@@ -107,7 +104,7 @@ Load paramgraphs and frontmatters from a markdown document.
 '''
 def load_paragraphs(doc_name):
     doc = os.path.join(DOC_PATH_SOURCE, doc_name)
-    print('load_paragraphs: Loading {}'.format(doc))
+    print('load_paragraphs: Loading file {}'.format(doc))
 
     file = open(doc, 'r')
     content = file.read()
@@ -119,14 +116,15 @@ def load_paragraphs(doc_name):
     para_lines = []
     frontmatters = []
     in_frontmatter = False
+    line_count = len(lines)
 
     for idx, l in enumerate(lines):
-        #print('load_paragraphs: Line {0}/{1}: {2}'.format(idx + 1, len(lines), l))
+        print('load_paragraphs: Line {0}/{1}: {2}'.format(idx + 1, line_count, l))
         # ignore frontmatter
         if l.startswith('---'):
             in_frontmatter = not in_frontmatter # will occour 2 times
             frontmatters.append(l)
-            #print('load_paragraphs: ignore frontmatter {0}/{1}: in_frontmatter: {2}'.format(idx + 1, len(lines), in_frontmatter))
+            print('load_paragraphs: Ignore frontmatter {0}/{1}: in_frontmatter: {2}'.format(idx + 1, line_count, in_frontmatter))
             continue
 
         if not in_frontmatter:
@@ -134,13 +132,13 @@ def load_paragraphs(doc_name):
             if not l == '':
                 # in a paragraph
                 para_lines.append(l.strip())
-                #print('load_paragraphs: in_paragraph {0}/{1} -- {2}'.format(idx + 1, len(lines), l))
+                print('load_paragraphs: in_paragraph {0}/{1} -- {2}'.format(idx + 1, line_count, l))
             else:
                 # paragraph break, the last line doesn't contain break
                 if len(para_lines) > 0:
                     paragraphs.append(' '.join(para_lines))
                     para_lines = []
-                #print('load_paragraphs: paragraph_br {0}/{1} <> {2}'.format(idx + 1, len(lines), l))
+                print('load_paragraphs: paragraph_br {0}/{1} <> {2}'.format(idx + 1, line_count, l))
         else:
             frontmatters.append(l)
 
