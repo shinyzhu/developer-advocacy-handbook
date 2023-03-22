@@ -64,20 +64,20 @@ def main():
                 'write-great-posts-and-articles.md']
 
     doc_index = 0 # 0 ~ 23
-    skip_para_index = 0 # start with 0 or else when error occured
+    skip_para_index = 0 # it is the latest line number in your log
+    #(example: main: Translating paragraph - 10/60)
+    # -> it's 10 if you want to skip 10 lines
 
-    print('main: Processing document - {}'.format(doc_names[doc_index]))
+    print('main: Processing document [{}] - {}'.format(doc_index, doc_names[doc_index]))
 
     doc_target = os.path.join(DOC_PATH_TARGET, doc_names[doc_index])
 
     paragraphs, frontmatters = load_paragraphs(doc_names[doc_index])
 
     if skip_para_index == 0:
-        # If you don't need to skip any lines, then I think it should be a new file
-        # So firstly we import the frontmatter
-        # Or you'd skip some lines when you want to recover from any error
-        # Then I assume that you've already had some content there
-        # Be CAREFUL :)
+        # It should be a new file when start from 0, so we import the frontmatter.
+        # MANUAL CASE:
+        # If error occured in the first paragraph, you need to manually remove the frontmatter from the target document.
         save_content_append(doc_target, '\n'.join(frontmatters))
 
     # translate and append to target file
@@ -142,6 +142,7 @@ def load_paragraphs(doc_name):
         else:
             frontmatters.append(l)
 
+    # append the last paragraph
     paragraphs.append(' '.join(para_lines))
 
     return paragraphs, frontmatters
