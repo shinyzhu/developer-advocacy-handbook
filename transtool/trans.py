@@ -64,9 +64,11 @@ def main():
                 'write-great-posts-and-articles.md']
 
     doc_index = 0 # 0 ~ 23
-    skip_para_index = 0 # it is the latest line number in your log
-    #(example: main: Translating paragraph - 10/60)
-    # -> it's 10 if you want to skip 10 lines
+    
+    # It is the latest current_para_index in your log, example:
+    # main: Translating paragraph - 10/60
+    # It's 10 if you want to start from the 10th line
+    start_para_index = 0
 
     print('main: Processing document [{}] - {}'.format(doc_index, doc_names[doc_index]))
 
@@ -74,7 +76,7 @@ def main():
 
     paragraphs, frontmatters = load_paragraphs(doc_names[doc_index])
 
-    if skip_para_index == 0:
+    if start_para_index == 0:
         # It should be a new file when start from 0, so we import the frontmatter.
         # MANUAL CASE:
         # If error occured in the first paragraph, you need to manually remove the frontmatter from the target document.
@@ -82,22 +84,22 @@ def main():
 
     # translate and append to target file
     para_count = len(paragraphs)
-    current_para = 0
+    current_para_index = 0
     for para in paragraphs:
-        current_para += 1
-
         # skip the translated paragraphs
-        if current_para <= skip_para_index:
-            print('main: Skip paragraph - {}/{}'.format(current_para, para_count))
+        if current_para_index < start_para_index:
+            print('main: Skip paragraph - {}/{}'.format(current_para_index, para_count))
         else:
-            print('main: Translating paragraph - {}/{}'.format(current_para, para_count))
+            print('main: Translating paragraph - {}/{}'.format(current_para_index, para_count))
             # There will be some errors when calling the API
             # Be careful with the logs :) Good luck
             tran = chatgpt_translate(para)
 
             # append to target file
             save_content_append(doc_target, '\n\n{}'.format(tran))
-
+        
+        # mark to next paragraph
+        current_para_index += 1
     
 
 '''
