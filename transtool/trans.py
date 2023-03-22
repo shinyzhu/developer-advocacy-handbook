@@ -17,7 +17,7 @@ def init_chatgpt():
 '''
 Translate a paragraph by OpenAI
 '''
-def chatgpt_translate(content):
+def chatgpt_translate(content=''):
     if content == '':
         return ''
     
@@ -73,9 +73,11 @@ def main():
     paragraphs, frontmatters = load_paragraphs(doc_names[doc_index])
 
     if skip_para_index == 0:
-        # create target file first because of frontmatter
-        # or faild in invoking the OpenAI API
-        # then you'd remove the exist content in your target file first. err....
+        # If you don't need to skip any lines, then I think it should be a new file
+        # So firstly we import the frontmatter
+        # Or you'd skip some lines when you want to recover from any error
+        # Then I assume that you've already had some content there
+        # Be CAREFUL :)
         save_content_append(doc_target, '\n'.join(frontmatters))
 
     # translate and append to target file
@@ -87,13 +89,14 @@ def main():
         # skip the translated paragraphs
         if current_para <= skip_para_index:
             print('main: Skip paragraph - {}/{}'.format(current_para, para_count))
-            continue
+        else:
+            print('main: Translating paragraph - {}/{}'.format(current_para, para_count))
+            # There will be some errors when calling the API
+            # Be careful with the logs :) Good luck
+            tran = chatgpt_translate(para)
 
-        print('main: Translating paragraph - {}/{}'.format(current_para, para_count))
-        tran = chatgpt_translate(para)
-
-        # append to target file
-        save_content_append(doc_target, '\n\n{}'.format(tran))
+            # append to target file
+            save_content_append(doc_target, '\n\n{}'.format(tran))
 
     
 
