@@ -63,7 +63,7 @@ def main():
                 'working-with-your-company.md', 'working-with-your-competition.md', 'write-excellent-code-examples.md',
                 'write-great-posts-and-articles.md']
 
-    doc_index = 0 # 0 ~ 23
+    doc_index = 23 # 0 ~ 23
     doc_name = doc_names[doc_index]
     
     # It is the latest current_para_index in your log, example:
@@ -104,7 +104,7 @@ Load paramgraphs and frontmatters from a markdown document.
 '''
 def load_paragraphs(doc_name):
     doc = os.path.join(DOC_PATH_SOURCE, doc_name)
-    print('load_paragraphs: Loading file {}'.format(doc))
+    #print('load_paragraphs: Loading file {}'.format(doc))
 
     file = open(doc, 'r')
     content = file.read()
@@ -119,12 +119,12 @@ def load_paragraphs(doc_name):
     line_count = len(lines)
 
     for idx, l in enumerate(lines):
-        print('load_paragraphs: Line {0}/{1}: {2}'.format(idx + 1, line_count, l))
+        #print('load_paragraphs: Line {0}/{1}: {2}'.format(idx + 1, line_count, l))
         # ignore frontmatter
         if l.startswith('---'):
             in_frontmatter = not in_frontmatter # will occour 2 times
             frontmatters.append(l)
-            print('load_paragraphs: Ignore frontmatter {0}/{1}: in_frontmatter: {2}'.format(idx + 1, line_count, in_frontmatter))
+            #print('load_paragraphs: Ignore frontmatter {0}/{1}: in_frontmatter: {2}'.format(idx + 1, line_count, in_frontmatter))
             continue
 
         if not in_frontmatter:
